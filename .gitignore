@@ -1,0 +1,4 @@
+node_modules
+.env
+src/db/otp.json
+src/logs/*.txt

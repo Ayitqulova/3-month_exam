@@ -1,0 +1,25 @@
+{
+  "name": "3-oy-exam",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "express-fileupload": "^1.5.2",
+    "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^7.0.13",
+    "pg": "^8.18.0"
+  }
+}
