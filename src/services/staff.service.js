@@ -1,10 +1,11 @@
 import pool from "../db/config.js";
 import { hashPassword } from "../utils/bcrypt.js";
 import JWT from "jsonwebtoken";
+import { comparePassword } from "../utils/bcrypt.js";
 import fs from "fs";
 import { join } from "path";
 import {sendOTP} from "../utils/sendemail.js";
-import { BadRequestError, ConfligError } from "../utils/error.js";
+import { BadRequestError, ConfligError, NotFoundError } from "../utils/error.js";
 
 const filepath = join(process.cwd(), 'src', 'db', 'otp.json')    
 
@@ -24,9 +25,10 @@ class UserService{
         const data = JSON.parse(fs.readFileSync(filepath, 'utf-8'))
 
         data.push({username, email, password, otp});
-        fs.writeFileSync(filepath, JSON.stringify(data))
+        fs.writeFileSync(filepath, JSON.stringify(data, null, 2))
+       
         // await sendOTP(email, otp)
-        console.log("!!! KOD TERMINALDA: ", otp); // <-- Shuni qo'shing
+        console.log("!!! KOD TERMINALDA: ", otp); 
         
         return{
             status:200,
@@ -44,12 +46,13 @@ class UserService{
             const staff = data.find(u => u.email === email && u.otp === otp)
 
             if(!staff){
-                return next(BadRequestError(400, "Wrong code"))
+                return next( new BadRequestError(400, "Wrong code or wrong email"))
             }
 
             const newUser = await pool.query("INSERT INTO staff(username, password, email) values($1,$2,$3) RETURNING *",
             [staff.username, await hashPassword(staff.password), staff.email]
         );
+        
 
         const user = newUser.rows[0]
         return{
@@ -60,17 +63,44 @@ class UserService{
 
         };
         } catch (error) {
-           return next(error)
-        }
+            if (error.code === '23505') {
+            return next(new ConfligError(409, "Bu foydalanuvchi allaqachon mavjud"));}
+              return next(error)
     }
 
         
      
     }
 
-    // async login(){
+    async login(body, next){
+        const {username, password} = body
+        
+        const existUser = await pool.query("Select * from staff where username=$1",[username])
 
-    // }
+         if(!existUser.rowCount){ // user bolmasa 
+            return new NotFoundError (409, "Username or Password wrong");
+        }
+            
+        if(!(await comparePassword(password, existUser.rows[0].password))){
+            return new NotFoundError (409, "Username or Password wrong");
+        }
+
+        return {
+            status: 200,
+            message:"User success login",
+            accessToken: JWT.sign({id: existUser.rows[0].id, username: existUser.rows[0].username},
+            process.env.JWT_SECRET,
+            { expiresIn: "1d"}),
+
+            refreshToken: JWT.sign({id:existUser.rows[0].id, username: existUser.rows[0].username},
+            process.env.JWT_SECRET,
+            {expiresIn: "1y"}
+            ),
+
+        }
+    }
+
+    }
 
     // async getAllStaff(){
 
