@@ -6,6 +6,18 @@ CREATE TABLE branch(
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
+-- DELETE FROM branch 
+-- WHERE id NOT IN (
+--     SELECT MIN(id) 
+--     FROM branch 
+--     GROUP BY name
+-- );  dublicatlarni ochirib tashladim qolda
+
+
+UPDATE staff SET role = 'superadmin' WHERE username = 'Guliza';
+ALTER TABLE branch ADD CONSTRAINT name UNIQUE (name);
+
 CREATE TABLE transport(
     id SERIAL PRIMARY KEY,
     branch_id INT REFERENCES branch(id) ON DELETE CASCADE,
@@ -28,6 +40,10 @@ CREATE TABLE staff(
 
 );
 
+CREATE TYPE user_role AS ENUM ('admin', 'user', 'manager', 'superadmin');
+
+ALTER TABLE staff ADD COLUMN role user_role DEFAULT 'user';
+
 
 -- DROP Table staff CASCADE
 
@@ -38,4 +54,9 @@ CREATE TABLE permissions(
     action VARCHAR(20)
 );
 
+-- ALTER TABLE permissions ALTER COLUMN action SET NOT NULL;
 
+ALTER TABLE permissions ALTER COLUMN permission_model SET NOT NULL;
+
+
+SELECT * FROM staff;

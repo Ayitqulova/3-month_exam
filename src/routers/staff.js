@@ -1,12 +1,22 @@
-import {Router} from "express"
-import validation from "../middleware/validation.js"
-import staffController from "../controller/staff.controller.js"
-const router = Router()
+import { Router } from "express";
+import validation from "../middleware/validation.js";
+import staffController from "../controller/staff.controller.js";
+import checkToken from "../middleware/checkToken.js";
+import roleGuard from "../middleware/role.guard.js";
 
-router
-    .post("/api/register", validation.register, staffController.register)
-    .post("/api/verify",staffController.verify)
-    .post("/api/login", validation.login, staffController.login)
-    // .get("/api/staff", userController.getAllStaff)
+const router = Router();
 
-export default router
+router.post("/api/register", validation.register, staffController.register);
+router.post("/api/verify", staffController.verify);
+router.post("/api/login", validation.login, staffController.login);
+router.get("/api/staff", checkToken, staffController.getAllStaff);
+
+//Admin
+router.post("/api/staff/permissions", checkToken, roleGuard("SuperAdmin"), staffController.givePermissions);
+router.put("/api/staff/:id", checkToken, roleGuard("SuperAdmin"), staffController.updateStaff);
+router.delete("/api/staff/:id", checkToken, roleGuard("SuperAdmin"), staffController.deleteStaff);
+
+
+
+
+export default router;

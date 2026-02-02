@@ -13,6 +13,8 @@ const app = express()
 app.use(express.json())
 app.use(fileUpload())
 app.use(indexRouter.staffRouter)
+app.use(indexRouter.branchRouter)
+app.use(indexRouter.transportRouter)
 
 
 app.use((error, req,res,next) => {
