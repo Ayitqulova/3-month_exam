@@ -47,10 +47,10 @@ class TransportController{
         )
 
         return res.status(201).json({
-            success:"true",
-            status:201,
-            data:update.rows[0],
-            message:"user success update ✅"
+            success: true,
+            status: 201,
+            data: update.rows[0],
+            message: "user success update ✅"
         })
        } catch (error) {
         next(error);
